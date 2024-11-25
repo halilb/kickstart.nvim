@@ -321,6 +321,14 @@ require('lazy').setup({
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
     },
+
+    config = function()
+      local wk = require 'which-key'
+      -- Add tab keybinds for tabs 1-10
+      for i = 1, 9 do
+        wk.add { tostring(i), string.format('<cmd>%d wincmd w<CR>', i), desc = string.format('Tab %d', i), mode = 'n' }
+      end
+    end,
   },
 
   -- NOTE: Plugins can specify dependencies.
