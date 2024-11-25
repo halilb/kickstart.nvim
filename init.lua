@@ -943,6 +943,27 @@ require('lazy').setup({
   -- Or use telescope!
   -- In normal mode type `<space>sh` then write `lazy.nvim-plugin`
   -- you can continue same window with `<space>sr` which resumes last telescope search
+  --
+
+  -- Start of custom plugins
+  {
+    -- Move between nvim and tmux panes
+    'christoomey/vim-tmux-navigator',
+    cmd = {
+      'TmuxNavigateLeft',
+      'TmuxNavigateDown',
+      'TmuxNavigateUp',
+      'TmuxNavigateRight',
+      'TmuxNavigatePrevious',
+    },
+    keys = {
+      { '<C-Left>', '<cmd>TmuxNavigateLeft<cr>' },
+      { '<C-Down>', '<cmd>TmuxNavigateDown<cr>' },
+      { '<C-Up>', '<cmd>TmuxNavigateUp<cr>' },
+      { '<C-Right>', '<cmd>TmuxNavigateRight<cr>' },
+      { '<c-\\>', '<cmd>TmuxNavigatePrevious<cr>' },
+    },
+  },
 }, {
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
