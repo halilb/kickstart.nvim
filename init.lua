@@ -84,6 +84,14 @@ I hope you enjoy your Neovim journey,
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
+local has_words_before = function()
+  if vim.bo[0].buftype == 'prompt' then
+    return false
+  end
+  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match '%s' == nil
+end
+
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
@@ -950,6 +958,103 @@ require('lazy').setup({
       { '<C-Right>', '<cmd>TmuxNavigateRight<cr>' },
     },
   },
+
+  {
+    'yetone/avante.nvim',
+    event = 'VeryLazy',
+    lazy = false,
+    version = false, -- set this if you want to always pull the latest change
+    opts = {
+      provider = 'copilot',
+      auto_suggestions_provider = 'copilot',
+      behaviour = {
+        auto_suggestions = true,
+      },
+
+      copilot = {
+        model = 'claude-3.5-sonnet',
+        -- max_tokens = 4096,
+      },
+    },
+    -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
+    build = 'make',
+    -- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter',
+      'stevearc/dressing.nvim',
+      'nvim-lua/plenary.nvim',
+      'MunifTanjim/nui.nvim',
+      --- The below dependencies are optional,
+      'nvim-tree/nvim-web-devicons', -- or echasnovski/mini.icons
+      {
+        'zbirenbaum/copilot.lua',
+        config = function()
+          require('copilot').setup {
+            suggestion = {
+              accept = false,
+              -- other options
+              keymap = {
+                -- other keymaps
+                accept = false,
+              },
+            },
+          }
+
+          local cmp = require 'cmp'
+          local luasnip = require 'luasnip'
+          cmp.setup {
+            -- ...
+            mapping = {
+              -- ...
+              ['<Tab>'] = cmp.mapping(function(fallback)
+                if require('copilot.suggestion').is_visible() then
+                  require('copilot.suggestion').accept()
+                elseif cmp.visible() then
+                  cmp.select_next_item { behavior = cmp.SelectBehavior.Insert }
+                elseif luasnip.expandable() then
+                  luasnip.expand()
+                elseif has_words_before() then
+                  cmp.complete()
+                else
+                  fallback()
+                end
+              end, {
+                'i',
+                's',
+              }),
+              -- ...
+            },
+            -- ...
+          }
+        end,
+      },
+      {
+        -- support for image pasting
+        'HakonHarnes/img-clip.nvim',
+        event = 'VeryLazy',
+        opts = {
+          -- recommended settings
+          default = {
+            embed_image_as_base64 = false,
+            prompt_for_file_name = false,
+            drag_and_drop = {
+              insert_mode = true,
+            },
+            -- required for Windows users
+            use_absolute_path = true,
+          },
+        },
+      },
+      {
+        -- Make sure to set this up properly if you have lazy=true
+        'MeanderingProgrammer/render-markdown.nvim',
+        opts = {
+          file_types = { 'markdown', 'Avante' },
+        },
+        ft = { 'markdown', 'Avante' },
+      },
+    },
+  },
 }, {
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
@@ -981,3 +1086,15 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 -- Do it with C-l
 -- Setting it here to override tmux keymaps
 vim.keymap.set('n', '<C-l>', '<cmd>nohlsearch<cr><esc>')
+--
+-- -- Supertab
+-- vim.keymap.set('i', '<Tab>', function()
+--   if require('copilot.suggestion').is_visible() then
+--     require('copilot.suggestion').accept()
+--   else
+--     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Tab>', true, false, true), 'n', false)
+--   end
+-- end, {
+--   desc = 'Super tab',
+--   silent = true,
+-- })
