@@ -162,6 +162,10 @@ vim.opt.scrolloff = 10
 -- Save file on Ctrl-s
 vim.keymap.set('n', '<C-s>', '<cmd>w<cr><esc>')
 
+-- Clear highlights on search when pressing <Esc> in normal mode
+--  See `:help hlsearch`
+vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
+
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 vim.keymap.set('n', 'tn', vim.diagnostic.goto_next, { desc = 'Next diagnostic' })
@@ -205,6 +209,7 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
+
 -- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
 -- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
 -- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
@@ -356,7 +361,7 @@ require('lazy').setup({
       local wk = require 'which-key'
       -- Add tab keybinds for tabs 1-10
       for i = 1, 9 do
-        wk.add { tostring(i), string.format('<cmd>%d wincmd w<CR>', i), desc = string.format('Tab %d', i), mode = 'n' }
+        wk.add { string.format('<leader>%i', i), string.format('<cmd>%d wincmd w<CR>', i), desc = string.format('Tab %d', i), hidden = true, mode = 'n' }
       end
     end,
   },
@@ -391,6 +396,13 @@ require('lazy').setup({
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+
+      {
+        'nvim-telescope/telescope-live-grep-args.nvim',
+        -- This will not install any breaking changes.
+        -- For major updates, this must be adjusted manually.
+        version = '^1.0.0',
+      },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -415,6 +427,7 @@ require('lazy').setup({
       -- [[ Configure Telescope ]]
       -- See `:help telescope` and `:help telescope.setup()`
       local actions = require 'telescope.actions'
+      local lga_actions = require 'telescope-live-grep-args.actions'
       require('telescope').setup {
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
@@ -480,17 +493,40 @@ require('lazy').setup({
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
           },
+          live_grep_args = {
+            auto_quoting = true, -- enable/disable auto-quoting
+            -- define mappings, e.g.
+            mappings = { -- extend mappings
+              i = {
+                ['<C-q>'] = lga_actions.quote_prompt(),
+                ['<C-i>'] = lga_actions.quote_prompt { postfix = ' --iglob ' },
+                -- freeze the current list and start a fuzzy search in the frozen list
+                ['<C-b>'] = actions.to_fuzzy_refine,
+              },
+            },
+            -- ... also accepts theme settings, for example:
+            -- theme = "dropdown", -- use dropdown theme
+            -- theme = { }, -- use own theme spec
+            -- layout_config = { mirror=true }, -- mirror preview pane
+          },
         },
       }
 
       -- Enable Telescope extensions if they are installed
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
+      pcall(require('telescope').load_extension, 'live_grep_args')
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
-      vim.keymap.set('n', '<leader>a', builtin.live_grep, { desc = 'Find Text' })
-      vim.keymap.set('n', 'ü', builtin.buffers, { desc = 'Recent files' })
+      vim.keymap.set('n', '<leader>a', require('telescope').extensions.live_grep_args.live_grep_args, {
+        desc = 'Live grep args',
+      })
+      vim.keymap.set('n', '<leader>gc', require('telescope-live-grep-args.shortcuts').grep_word_under_cursor)
+
+      vim.keymap.set('n', 'ü', function()
+        builtin.buffers { sort_lastused = true }
+      end, { desc = 'Recent files' })
       vim.keymap.set('n', ',', builtin.find_files, { desc = 'Find files' })
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
@@ -1075,7 +1111,3 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
-
--- Clear highlights on search when pressing <Esc> in normal mode
---  See `:help hlsearch`
-vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
