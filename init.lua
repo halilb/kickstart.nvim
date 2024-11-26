@@ -164,6 +164,36 @@ vim.keymap.set('n', '<C-s>', '<cmd>w<cr><esc>')
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.keymap.set('n', 'tn', vim.diagnostic.goto_next, { desc = 'Next diagnostic' })
+vim.keymap.set('n', 'tl', vim.diagnostic.open_float, { desc = 'Current line diagnostic' })
+
+local signs = {
+  { name = 'DiagnosticSignError', text = '' },
+  { name = 'DiagnosticSignWarn', text = '' },
+  { name = 'DiagnosticSignHint', text = '' },
+  { name = 'DiagnosticSignInfo', text = '' },
+}
+
+for _, sign in ipairs(signs) do
+  vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = '' })
+end
+
+vim.diagnostic.config {
+  virtual_text = false, -- disable virtual text
+  signs = {
+    active = signs, -- show signs
+  },
+  update_in_insert = true,
+  underline = true,
+  severity_sort = true,
+  float = {
+    focusable = true,
+    style = 'minimal',
+    border = 'rounded',
+    header = '',
+    prefix = '',
+  },
+}
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -1012,6 +1042,11 @@ require('lazy').setup({
       { '<C-Up>', '<cmd>TmuxNavigateUp<cr>' },
       { '<C-Right>', '<cmd>TmuxNavigateRight<cr>' },
     },
+    config = function()
+      vim.keymap.set('n', '<C-l>', '<cmd>nohlsearch<cr><esc>', {
+        remap = true,
+      })
+    end,
   },
   {
     'github/copilot.vim',
@@ -1044,8 +1079,3 @@ require('lazy').setup({
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
--- Do it with C-l
--- Setting it here to override tmux keymaps
-vim.keymap.set('n', '<C-l>', '<cmd>nohlsearch<cr><esc>', {
-  remap = true,
-})
