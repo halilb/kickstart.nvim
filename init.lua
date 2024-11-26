@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -113,9 +113,9 @@ vim.opt.showmode = false
 --  Schedule the setting after `UiEnter` because it can increase startup-time.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
-vim.schedule(function()
-  vim.opt.clipboard = 'unnamedplus'
-end)
+-- vim.schedule(function()
+--   vim.opt.clipboard = 'unnamedplus'
+-- end)
 
 -- Enable break indent
 vim.opt.breakindent = true
@@ -171,21 +171,21 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 vim.keymap.set('n', 'tn', vim.diagnostic.goto_next, { desc = 'Next diagnostic' })
 vim.keymap.set('n', 'tl', vim.diagnostic.open_float, { desc = 'Current line diagnostic' })
 
-local signs = {
+local diagnosticSigns = {
   { name = 'DiagnosticSignError', text = '' },
   { name = 'DiagnosticSignWarn', text = '' },
   { name = 'DiagnosticSignHint', text = '' },
   { name = 'DiagnosticSignInfo', text = '' },
 }
 
-for _, sign in ipairs(signs) do
+for _, sign in ipairs(diagnosticSigns) do
   vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = '' })
 end
 
 vim.diagnostic.config {
   virtual_text = false, -- disable virtual text
   signs = {
-    active = signs, -- show signs
+    active = diagnosticSigns, -- show signs
   },
   update_in_insert = true,
   underline = true,
@@ -505,7 +505,7 @@ require('lazy').setup({
               },
             },
             -- ... also accepts theme settings, for example:
-            -- theme = "dropdown", -- use dropdown theme
+            theme = 'dropdown', -- use dropdown theme
             -- theme = { }, -- use own theme spec
             -- layout_config = { mirror=true }, -- mirror preview pane
           },
@@ -716,14 +716,14 @@ require('lazy').setup({
       })
 
       -- Change diagnostic symbols in the sign column (gutter)
-      -- if vim.g.have_nerd_font then
-      --   local signs = { ERROR = '', WARN = '', INFO = '', HINT = '' }
-      --   local diagnostic_signs = {}
-      --   for type, icon in pairs(signs) do
-      --     diagnostic_signs[vim.diagnostic.severity[type]] = icon
-      --   end
-      --   vim.diagnostic.config { signs = { text = diagnostic_signs } }
-      -- end
+      if vim.g.have_nerd_font then
+        local signs = { ERROR = '', WARN = '', INFO = '', HINT = '' }
+        local diagnostic_signs = {}
+        for type, icon in pairs(signs) do
+          diagnostic_signs[vim.diagnostic.severity[type]] = icon
+        end
+        vim.diagnostic.config { signs = { text = diagnostic_signs } }
+      end
 
       -- LSP servers and clients are able to communicate to each other what features they support.
       --  By default, Neovim doesn't support everything that is in the LSP specification.
@@ -840,7 +840,9 @@ require('lazy').setup({
         -- python = { "isort", "black" },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        javascript = { 'prettierd', 'prettier', stop_after_first = true },
+        javascript = { 'prettier', 'prettierd', stop_after_first = true },
+        typescript = { 'prettier', 'prettierd', stop_after_first = true },
+        typescriptreact = { 'prettier', 'prettierd', stop_after_first = true },
       },
     },
   },
@@ -1052,8 +1054,6 @@ require('lazy').setup({
   -- require 'kickstart.plugins.debug',
   -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
@@ -1069,6 +1069,85 @@ require('lazy').setup({
   --
 
   -- Start of custom plugins
+
+  {
+    'nvim-neo-tree/neo-tree.nvim',
+    version = '*',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-tree/nvim-web-devicons', -- not strictly required, but recommended
+      'MunifTanjim/nui.nvim',
+    },
+    cmd = 'Neotree',
+    keys = {
+      { '\\', ':Neotree reveal<CR>', desc = 'NeoTree reveal', silent = true },
+    },
+    opts = {
+      filesystem = {
+        window = {
+          mappings = {
+            ['\\'] = 'close_window',
+          },
+        },
+      },
+    },
+  },
+
+  {
+    { -- Add indentation guides even on blank lines
+      'lukas-reineke/indent-blankline.nvim',
+      -- Enable `lukas-reineke/indent-blankline.nvim`
+      -- See `:help ibl`
+      main = 'ibl',
+      opts = {},
+      config = function()
+        local highlight = {
+          'RainbowRed',
+          'RainbowYellow',
+          'RainbowBlue',
+          'RainbowOrange',
+          'RainbowGreen',
+          'RainbowViolet',
+          'RainbowCyan',
+        }
+        local hooks = require 'ibl.hooks'
+        -- create the highlight groups in the highlight setup hook, so they are reset
+        -- every time the colorscheme changes
+        hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
+          vim.api.nvim_set_hl(0, 'RainbowRed', { fg = '#E06C75' })
+          vim.api.nvim_set_hl(0, 'RainbowYellow', { fg = '#E5C07B' })
+          vim.api.nvim_set_hl(0, 'RainbowBlue', { fg = '#61AFEF' })
+          vim.api.nvim_set_hl(0, 'RainbowOrange', { fg = '#D19A66' })
+          vim.api.nvim_set_hl(0, 'RainbowGreen', { fg = '#98C379' })
+          vim.api.nvim_set_hl(0, 'RainbowViolet', { fg = '#C678DD' })
+          vim.api.nvim_set_hl(0, 'RainbowCyan', { fg = '#56B6C2' })
+        end)
+
+        vim.g.rainbow_delimiters = { highlight = highlight }
+        require('ibl').setup {
+          indent = { char = '▏' },
+          scope = { highlight = highlight },
+        }
+
+        hooks.register(hooks.type.SCOPE_HIGHLIGHT, hooks.builtin.scope_highlight_from_extmark)
+      end,
+    },
+  },
+
+  {
+    'windwp/nvim-autopairs',
+    event = 'InsertEnter',
+    -- Optional dependency
+    dependencies = { 'hrsh7th/nvim-cmp' },
+    config = function()
+      require('nvim-autopairs').setup {}
+      -- If you want to automatically add `(` after selecting a function or method
+      local cmp_autopairs = require 'nvim-autopairs.completion.cmp'
+      local cmp = require 'cmp'
+      cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done())
+    end,
+  },
+
   {
     -- Move between nvim and tmux panes
     'christoomey/vim-tmux-navigator',
@@ -1084,6 +1163,7 @@ require('lazy').setup({
       })
     end,
   },
+
   {
     'github/copilot.vim',
   },
