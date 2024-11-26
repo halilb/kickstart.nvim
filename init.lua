@@ -1051,10 +1051,12 @@ require('lazy').setup({
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
+  require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.autopairs',
+  require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
@@ -1069,84 +1071,6 @@ require('lazy').setup({
   --
 
   -- Start of custom plugins
-
-  {
-    'nvim-neo-tree/neo-tree.nvim',
-    version = '*',
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-      'nvim-tree/nvim-web-devicons', -- not strictly required, but recommended
-      'MunifTanjim/nui.nvim',
-    },
-    cmd = 'Neotree',
-    keys = {
-      { '\\', ':Neotree reveal<CR>', desc = 'NeoTree reveal', silent = true },
-    },
-    opts = {
-      filesystem = {
-        window = {
-          mappings = {
-            ['\\'] = 'close_window',
-          },
-        },
-      },
-    },
-  },
-
-  {
-    { -- Add indentation guides even on blank lines
-      'lukas-reineke/indent-blankline.nvim',
-      -- Enable `lukas-reineke/indent-blankline.nvim`
-      -- See `:help ibl`
-      main = 'ibl',
-      opts = {},
-      config = function()
-        local highlight = {
-          'RainbowRed',
-          'RainbowYellow',
-          'RainbowBlue',
-          'RainbowOrange',
-          'RainbowGreen',
-          'RainbowViolet',
-          'RainbowCyan',
-        }
-        local hooks = require 'ibl.hooks'
-        -- create the highlight groups in the highlight setup hook, so they are reset
-        -- every time the colorscheme changes
-        hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
-          vim.api.nvim_set_hl(0, 'RainbowRed', { fg = '#E06C75' })
-          vim.api.nvim_set_hl(0, 'RainbowYellow', { fg = '#E5C07B' })
-          vim.api.nvim_set_hl(0, 'RainbowBlue', { fg = '#61AFEF' })
-          vim.api.nvim_set_hl(0, 'RainbowOrange', { fg = '#D19A66' })
-          vim.api.nvim_set_hl(0, 'RainbowGreen', { fg = '#98C379' })
-          vim.api.nvim_set_hl(0, 'RainbowViolet', { fg = '#C678DD' })
-          vim.api.nvim_set_hl(0, 'RainbowCyan', { fg = '#56B6C2' })
-        end)
-
-        vim.g.rainbow_delimiters = { highlight = highlight }
-        require('ibl').setup {
-          indent = { char = '▏' },
-          scope = { highlight = highlight },
-        }
-
-        hooks.register(hooks.type.SCOPE_HIGHLIGHT, hooks.builtin.scope_highlight_from_extmark)
-      end,
-    },
-  },
-
-  {
-    'windwp/nvim-autopairs',
-    event = 'InsertEnter',
-    -- Optional dependency
-    dependencies = { 'hrsh7th/nvim-cmp' },
-    config = function()
-      require('nvim-autopairs').setup {}
-      -- If you want to automatically add `(` after selecting a function or method
-      local cmp_autopairs = require 'nvim-autopairs.completion.cmp'
-      local cmp = require 'cmp'
-      cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done())
-    end,
-  },
 
   {
     -- Move between nvim and tmux panes
