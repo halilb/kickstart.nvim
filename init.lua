@@ -843,6 +843,7 @@ require('lazy').setup({
         javascript = { 'prettier', 'prettierd', stop_after_first = true },
         typescript = { 'prettier', 'prettierd', stop_after_first = true },
         typescriptreact = { 'prettier', 'prettierd', stop_after_first = true },
+        html = { 'prettier', 'prettierd', stop_after_first = true },
       },
     },
   },
