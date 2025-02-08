@@ -162,6 +162,9 @@ vim.opt.scrolloff = 10
 -- Save file on Ctrl-s
 vim.keymap.set('n', '<C-s>', '<cmd>w<cr><esc>')
 
+-- Remap jump back to <C-p>
+vim.keymap.set('n', '<C-p>', '<C-i>')
+
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
@@ -1184,21 +1187,21 @@ require('lazy').setup({
     },
     keys = {
       {
-        '<leader><space>',
+        ',',
         function()
           Snacks.picker.smart()
         end,
         desc = 'Smart Find Files',
       },
       {
-        '<leader>,',
+        'ü',
         function()
           Snacks.picker.buffers()
         end,
         desc = 'Buffers',
       },
       {
-        '<leader>/',
+        '<leader><space>',
         function()
           Snacks.picker.grep()
         end,
