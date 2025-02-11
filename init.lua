@@ -1176,6 +1176,48 @@ require('lazy').setup({
   },
 
   {
+    'folke/trouble.nvim',
+    specs = {
+      'folke/snacks.nvim',
+      opts = function(_, opts)
+        return vim.tbl_deep_extend('force', opts or {}, {
+          picker = {
+            actions = require('trouble.sources.snacks').actions,
+            win = {
+              input = {
+                keys = {
+                  ['<c-t>'] = {
+                    'trouble_open',
+                    mode = { 'n', 'i' },
+                  },
+                },
+              },
+            },
+          },
+        })
+      end,
+    },
+    keys = {
+      -- Move next on C-k
+      {
+        '<C-k>',
+        function()
+          require('trouble').next { skip_groups = true, jump = true }
+        end,
+        desc = 'Next',
+      },
+      -- Move previous on C-j
+      {
+        '<C-j>',
+        function()
+          require('trouble').prev { skip_groups = true, jump = true }
+        end,
+        desc = 'Previous',
+      },
+    },
+  },
+
+  {
     'folke/snacks.nvim',
     priority = 1000,
     lazy = false,
