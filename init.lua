@@ -1098,6 +1098,16 @@ require('lazy').setup({
   {
     -- Move between nvim and tmux panes
     'christoomey/vim-tmux-navigator',
+
+    cmd = {
+      'TmuxNavigateLeft',
+      'TmuxNavigateDown',
+      'TmuxNavigateUp',
+      'TmuxNavigateRight',
+      'TmuxNavigatePrevious',
+      'TmuxNavigatorProcessList',
+    },
+
     keys = {
       { '<C-Left>', '<cmd>TmuxNavigateLeft<cr>' },
       { '<C-Down>', '<cmd>TmuxNavigateDown<cr>' },
