@@ -1122,10 +1122,6 @@ require('lazy').setup({
   },
 
   {
-    'github/copilot.vim',
-  },
-
-  {
     'folke/flash.nvim',
     event = 'VeryLazy',
     opts = {},
@@ -1149,38 +1145,57 @@ require('lazy').setup({
     },
   },
 
-  {
-    'yetone/avante.nvim',
-    event = 'VeryLazy',
-    lazy = false,
-    version = false, -- set this if you want to always pull the latest change
-    opts = {
-      provider = 'copilot',
-      auto_suggestions_provider = 'copilot',
-      behaviour = {
-        auto_suggestions = false,
-      },
-      copilot = {
-        model = 'claude-3.5-sonnet',
-        -- max_tokens = 4096,
-      },
-    },
-    build = 'make',
-    dependencies = {
-      'nvim-treesitter/nvim-treesitter',
-      'stevearc/dressing.nvim',
-      'nvim-lua/plenary.nvim',
-      'MunifTanjim/nui.nvim',
-      --- The below dependencies are optional,
-      'nvim-tree/nvim-web-devicons', -- or echasnovski/mini.icons
+  -- {
+  --   'yetone/avante.nvim',
+  --   event = 'VeryLazy',
+  --   lazy = false,
+  --   version = false, -- set this if you want to always pull the latest change
+  --   opts = {
+  --     provider = 'copilot',
+  --     auto_suggestions_provider = 'copilot',
+  --     behaviour = {
+  --       auto_suggestions = false,
+  --     },
+  --     copilot = {
+  --       model = 'claude-3.7',
+  --       -- max_tokens = 4096,
+  --     },
+  --     enable_cursor_planning_mode = true,
+  --   },
+  --   build = 'make',
+  --   dependencies = {
+  --     'nvim-treesitter/nvim-treesitter',
+  --     'stevearc/dressing.nvim',
+  --     'nvim-lua/plenary.nvim',
+  --     'MunifTanjim/nui.nvim',
+  --     --- The below dependencies are optional,
+  --     'nvim-tree/nvim-web-devicons', -- or echasnovski/mini.icons
+  --
+  --     {
+  --       -- Make sure to set this up properly if you have lazy=true
+  --       'MeanderingProgrammer/render-markdown.nvim',
+  --       opts = {
+  --         file_types = { 'markdown', 'Avante' },
+  --       },
+  --       ft = { 'markdown', 'Avante' },
+  --     },
+  --   },
+  -- },
 
-      {
-        -- Make sure to set this up properly if you have lazy=true
-        'MeanderingProgrammer/render-markdown.nvim',
-        opts = {
-          file_types = { 'markdown', 'Avante' },
-        },
-        ft = { 'markdown', 'Avante' },
+  {
+    'CopilotC-Nvim/CopilotChat.nvim',
+    dependencies = {
+      { 'github/copilot.vim' }, -- or zbirenbaum/copilot.lua
+      { 'nvim-lua/plenary.nvim', branch = 'master' }, -- for curl, log and async functions
+    },
+    build = 'make tiktoken', -- Only on MacOS or Linux
+    opts = {
+      -- See Configuration section for options
+    },
+    -- See Commands section for default commands if you want to lazy load on them
+    mappings = {
+      complete = {
+        insert = '<C-t>',
       },
     },
   },
