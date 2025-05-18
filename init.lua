@@ -1202,6 +1202,20 @@ require('lazy').setup({
   },
 
   {
+    'm4xshen/hardtime.nvim',
+    lazy = false,
+    dependencies = { 'MunifTanjim/nui.nvim' },
+    opts = {},
+  },
+
+  {
+    'rcarriga/nvim-notify',
+    config = function()
+      vim.notify = require 'notify'
+    end,
+  },
+
+  {
     'folke/trouble.nvim',
     specs = {
       'folke/snacks.nvim',
