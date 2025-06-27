@@ -240,6 +240,13 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+-- Change dimmed text color for Snacks
+-- See https://github.com/folke/snacks.nvim/discussions/1688
+vim.api.nvim_set_hl(0, 'SnacksPickerDir', { link = 'Text' })
+vim.api.nvim_set_hl(0, 'SnacksPickerPathHidden', { link = 'Text' })
+vim.api.nvim_set_hl(0, 'SnacksPickerPathIgnored', { link = 'Comment' })
+vim.api.nvim_set_hl(0, 'SnacksPickerGitStatusUntracked', { link = 'Special' })
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -1147,21 +1154,7 @@ require('lazy').setup({
   },
 
   {
-    'CopilotC-Nvim/CopilotChat.nvim',
-    dependencies = {
-      { 'github/copilot.vim' }, -- or zbirenbaum/copilot.lua
-      { 'nvim-lua/plenary.nvim', branch = 'master' }, -- for curl, log and async functions
-    },
-    build = 'make tiktoken', -- Only on MacOS or Linux
-    opts = {
-      -- See Configuration section for options
-    },
-    -- See Commands section for default commands if you want to lazy load on them
-    mappings = {
-      complete = {
-        insert = '<C-t>',
-      },
-    },
+    'github/copilot.vim',
   },
 
   {
@@ -1221,7 +1214,14 @@ require('lazy').setup({
     opts = {
       indent = { enabled = true },
       input = { enabled = true },
-      picker = { enabled = true },
+      picker = {
+        enabled = true,
+        formatters = {
+          file = {
+            truncate = 10000,
+          },
+        },
+      },
     },
     keys = {
       {
