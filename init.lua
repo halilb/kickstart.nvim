@@ -174,6 +174,9 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 vim.keymap.set('n', 'tn', vim.diagnostic.goto_next, { desc = 'Next diagnostic' })
 vim.keymap.set('n', 'tl', vim.diagnostic.open_float, { desc = 'Current line diagnostic' })
 
+-- Yank to system clipboard
+vim.keymap.set({ 'x', 'n' }, 'y', '"+y', { silent = true })
+
 local diagnosticSigns = {
   { name = 'DiagnosticSignError', text = '' },
   { name = 'DiagnosticSignWarn', text = '' },
@@ -1216,9 +1219,15 @@ require('lazy').setup({
       input = { enabled = true },
       picker = {
         enabled = true,
+        hidden = true,
         formatters = {
           file = {
             truncate = 10000,
+          },
+        },
+        sources = {
+          explorer = {
+            hidden = true,
           },
         },
       },
