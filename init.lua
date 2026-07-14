@@ -815,6 +815,23 @@ require('lazy').setup({
           end,
         },
       }
+
+      -- oxlint runs via its own language server (`oxlint --lsp`), not mason.
+      -- The installed nvim-lspconfig definition spawns a standalone
+      -- `oxc_language_server` binary that modern oxlint no longer ships, so
+      -- override cmd to run the project-local oxlint (falling back to a
+      -- global one), matching current lspconfig master.
+      vim.lsp.config('oxlint', {
+        cmd = function(dispatchers, config)
+          local root = type(config) == 'table' and config.root_dir or vim.fn.getcwd()
+          local bin = root .. '/node_modules/.bin/oxlint'
+          if vim.fn.executable(bin) ~= 1 then
+            bin = 'oxlint'
+          end
+          return vim.lsp.rpc.start({ bin, '--lsp' }, dispatchers)
+        end,
+      })
+      vim.lsp.enable 'oxlint'
     end,
   },
 
@@ -857,9 +874,10 @@ require('lazy').setup({
         python = { 'black' },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        javascript = { 'prettier', 'prettierd', stop_after_first = true },
-        typescript = { 'prettier', 'prettierd', stop_after_first = true },
-        typescriptreact = { 'prettier', 'prettierd', stop_after_first = true },
+        javascript = { 'biome', 'prettier', 'prettierd', stop_after_first = true },
+        typescript = { 'biome', 'prettier', 'prettierd', stop_after_first = true },
+        typescriptreact = { 'biome', 'prettier', 'prettierd', stop_after_first = true },
+        json = { 'biome', 'prettier', 'prettierd', stop_after_first = true },
         html = { 'prettier', 'prettierd', stop_after_first = true },
         css = { 'prettier', 'prettierd', stop_after_first = true },
       },
@@ -988,6 +1006,8 @@ require('lazy').setup({
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
+      -- vim.o.background = 'dark'
+      vim.o.background = 'light'
       vim.cmd.colorscheme 'gruvbox'
 
       -- You can configure highlights by doing something like:
