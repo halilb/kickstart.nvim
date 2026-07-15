@@ -767,7 +767,6 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        ts_ls = {},
         tailwindcss = {},
         --
 
@@ -804,6 +803,12 @@ require('lazy').setup({
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
+        -- Even though ts_ls is removed from `servers` above, mason-lspconfig v2
+        -- auto-enables every installed server, so the classic typescript-
+        -- language-server (bundled TS 5.8.3) still attaches and chokes on this
+        -- repo's TS 7 `types: ["*"]`. Exclude it so the native tsgo LSP (below)
+        -- is the only TS server.
+        automatic_enable = { exclude = { 'ts_ls' } },
         handlers = {
           function(server_name)
             local server = servers[server_name] or {}
@@ -832,6 +837,25 @@ require('lazy').setup({
         end,
       })
       vim.lsp.enable 'oxlint'
+
+      -- The repo ships the native TS 7 compiler (tsgo), which has no
+      -- tsserver.js, so mason's classic ts_ls would fall back to its own old
+      -- TypeScript and mis-read tsconfig `types` (e.g. missing jasmine globals).
+      -- Drive the project-local native tsc in its built-in LSP mode instead so
+      -- the editor matches `npm run tc`, falling back to a global tsc.
+      vim.lsp.config('tsgo', {
+        cmd = function(dispatchers, config)
+          local root = type(config) == 'table' and config.root_dir or vim.fn.getcwd()
+          local bin = root .. '/node_modules/.bin/tsc'
+          if vim.fn.executable(bin) ~= 1 then
+            bin = 'tsc'
+          end
+          return vim.lsp.rpc.start({ bin, '--lsp', '-stdio' }, dispatchers)
+        end,
+        filetypes = { 'typescript', 'typescriptreact', 'javascript', 'javascriptreact' },
+        root_markers = { 'tsconfig.json', 'package.json', '.git' },
+      })
+      vim.lsp.enable 'tsgo'
     end,
   },
 
